@@ -7,27 +7,48 @@
             </div>
             <div class="card-body table-responsive">
                 <table id="view_students" style="font-size:10pt;" class="table table-bordered table-striped">
-                    <thead>
-                        <tr>
-                            <th>SSLC Board</th>
-                            <th>SSLC Passout Year</th>
-                            <th>Intermediate Board</th>
-                            <th>Intermediate Passout Year</th>
-                            <th>Other Degree Name</th>
-                            <th>Other University Name</th>
-                            <th>Pass Out Year</th>
-                            <th>GPA</th>
-                        </tr>
-                    </thead>
                     <tbody>
                         @foreach ($educationDataAr as $educationData)
+                            <!-- Row 1: Labels -->
+                            <tr>
+                                <th>SSLC Board</th>
+                                <th>SSLC Passout Year</th>
+                            </tr>
+                            <!-- Row 2: Data -->
                             <tr>
                                 <td>{{ $educationData->sslc_board }}</td>
-                                <td>{{ $educationData->sslc_passout }}</td>
+                                 <td>{{ $educationData->sslc_passout }}</td>
+                            </tr>
+                
+                            <!-- Row 3: Labels -->
+                            <tr>
+                                 <th>Intermediate Board</th>
+                                  <th>Intermediate Passout Year </th>
+                            </tr>
+                            <!-- Row 4: Data -->
+                            <tr>
                                 <td>{{ $educationData->intermediate_board }}</td>
                                 <td>{{ $educationData->intermediate_passout }}</td>
-                                <td>{{ $educationData->other_degree_name }}</td>
-                                <td>{{ $educationData->other_college_name }}</td>
+                            </tr>
+                
+                            <!-- Row 5: Labels -->
+                            <tr>
+                               <th>Last Completed Course</th>
+                                 <th>University/Board/Institute </th>
+                            </tr>
+                            <!-- Row 6: Data -->
+                            <tr>
+                                 <td>{{ $educationData->other_degree_name }}</td>
+                                 <td>{{ $educationData->other_college_name }}</td>
+                            </tr>
+                
+                            <!-- Row 7: Labels -->
+                            <tr>
+                               <th>Passout Year</th>
+                                <th>GPA</th>
+                            </tr>
+                            <!-- Row 8: Data -->
+                            <tr>
                                 <td>{{ $educationData->graduation_year }}</td>
                                 <td>{{ $educationData->gpa }}</td>
                             </tr>

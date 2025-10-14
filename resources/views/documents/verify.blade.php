@@ -8,6 +8,19 @@
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title">Document Verification</h3>
+                <div class="d-flex justify-content-end mb-3">
+                    <form action="{{ route('documents.verify') }}" method="GET" class="d-flex" style="max-width: 300px;">
+                        <input
+                            type="text"
+                            name="search"
+                            class="form-control form-control-sm"
+                            placeholder="Search..."
+                            value="{{ $search ?? '' }}">
+                              <button type="submit" class="btn btn-sm btn-primary">
+                                <i class="bi bi-search"></i> Search
+                            </button>
+                    </form>
+                </div>
             </div>
 
             <div class="card-body table-responsive">
@@ -18,9 +31,9 @@
                             <th>SL No</th>
                             <th>Student</th>
                             <th>Category</th>
-                            <th>Document</th>
+                            <!--<th>Document</th>-->
                             <th>Status</th>
-                            <th>UploadVerification Screenshot</th>
+                            <th>Upload Verification Screenshot</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -35,10 +48,12 @@
                                     {{ $doc->student->first_name }} {{ $doc->student->last_name }}
                                 </a>
                             </td>
-                            <td>{{ $doc->doc_category_id }}</td>
-                            <td>
-                                <a href="{{ asset('storage/'.$doc->document_path) }}" target="_blank">View File</a>
-                            </td>
+                            <td>{{ $doc->doc_category ? $doc->doc_category->category_name : 'N/A' }}</td>
+
+
+                            <!--<td>-->
+                            <!--        <a href="{{ asset('storage/'.$doc->document_path) }}" target="_blank">View File</a>-->
+                            <!--</td>-->
                             <td class="{{ $doc->status === 'approved' 
                                     ? 'text-success' 
                                     : ($doc->status === 'rejected' 
@@ -46,51 +61,43 @@
                                         : 'text-warning') }}">
                                 {{ $doc->status ? ucfirst($doc->status) : 'Verification Pending...' }}
                             </td>
-
-                            <td>
-                                <div class="d-flex flex-column gap-2">
-
-                                    {{-- Thumbnail --}}
-                                    <div class="d-flex align-items-center gap-2">
-                                        @if($doc->verification_screenshot)
-                                        <div class="border rounded p-1">
-                                            <img src="{{ route('documents.view-screenshot', $doc->id) }}" alt="Screenshot"
-                                                class="img-thumbnail" style="width:80px; height:auto;">
-                                        </div>
+                                    <td>
+                                        @if($doc->document_path)
+                                            @php
+                                                $fileFullPath = public_path($doc->document_path);
+                                                $fileExt = pathinfo($doc->document_path, PATHINFO_EXTENSION);
+                                            @endphp
+                                    
+                                            @if(file_exists($fileFullPath))
+                                                <div class="d-flex align-items-center">
+                                                    @if(in_array(strtolower($fileExt), ['jpg','jpeg','png','gif']))
+                                                        <div class="border rounded p-1 me-2">
+                                                            <img src="{{ asset($doc->document_path) }}" 
+                                                                 alt="Document" 
+                                                                 class="img-thumbnail" 
+                                                                 style="width:80px; height:auto;">
+                                                        </div>
+                                                    @else
+                                                        <span class="text-muted me-2">{{ strtoupper($fileExt) }} File</span>
+                                                    @endif
+                                    
+                                                    <div class="m-3">
+                                                        <a href="{{ asset($doc->document_path) }}" 
+                                                           target="_blank" 
+                                                           class="btn btn-sm btn-warning" 
+                                                           title="View File"
+                                                           style="height: 30px; display: flex; align-items: center; justify-content: center;">
+                                                            <span class="iconify" data-icon="mdi:eye" data-inline="false"></span>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            @else
+                                                <span class="text-danger">No file ❌</span>
+                                            @endif
                                         @else
-                                        <span class="text-muted small">No file uploaded</span>
+                                            <span class="text-danger">No file ❌</span>
                                         @endif
-                                    </div>
-
-                                    {{-- File input --}}
-                                    <input type="file" class="form-control form-control-sm screenshot-input" data-id="{{ $doc->id }}">
-
-                                    {{-- Action buttons (same row) --}}
-                                   <div class="d-flex mt-1" style="gap:4px;">
- {{-- smaller gap --}}
-    {{-- Save button --}}
-    <button type="button" class="btn btn-sm btn-primary save-screenshot" data-id="{{ $doc->id }}" title="Save">
-        <span class="iconify" data-icon="mdi:upload" data-inline="false"></span>
-    </button>
-
-    {{-- View button --}}
-    @if($doc->verification_screenshot)
-    <a href="{{ route('documents.view-screenshot', $doc->id) }}" target="_blank" 
-       class="btn btn-sm btn-warning" title="View">
-        <span class="iconify" data-icon="mdi:eye" data-inline="false"></span>
-    </a>
-    @endif
-</div>
-
-
-
-
-                                </div>
-                            </td>
-
-
-
-
+                                    </td>
 
 
                             <td>
@@ -119,6 +126,8 @@
 
 @section('script')
 <script>
+    // Save screenshot via AJAX
+    // Save screenshot via AJAX
     $(document).on('click', '.save-screenshot', function(e) {
         e.preventDefault();
         var id = $(this).data('id');
@@ -143,12 +152,12 @@
             success: function(response) {
                 if (response.success) {
                     alert(response.message);
-                    // Refresh the view thumbnail
-                    $('#screenshot-section-' + id).html(`
-                    <a href="/documents/view-screenshot/${id}" target="_blank" class="btn btn-sm btn-secondary mb-2">View</a>
-                    <br>
-                    <img src="/documents/view-screenshot/${id}" style="width:100px;height:auto;border:1px solid #ccc;border-radius:4px;">
-                `);
+
+                    // Automatically refresh the page
+                    window.location.reload();
+
+                    // If you still want to keep the dynamic thumbnail update, you can keep the code below
+                    // ... your previous thumbnail + input + buttons code
                 } else {
                     alert("Error: " + response.message);
                 }
@@ -158,6 +167,8 @@
             }
         });
     });
+
+
 
 
 
@@ -204,7 +215,8 @@
 
         $('#documents_table').DataTable({
             lengthMenu: [10, 25, 100, 500],
-            pageLength: 25
+            pageLength: 25,
+            searching: false
         });
     });
 </script>

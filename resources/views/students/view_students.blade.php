@@ -16,7 +16,8 @@
                 <a class="btn btn-sm btn-dark" href="{{ route('view_students') }}">
                     <i class="fa fa-eraser"></i>&nbsp;&nbsp;Clear Filter
                 </a>
-                <a href="{{ route('view_students', ['excel' => 'true']) }}" id="export_excel" class="btn btn-sm btn-warning">
+                <a href="{{ route('view_students', ['excel' => 'true']) }}" id="export_excel"
+                    class="btn btn-sm btn-warning">
                     <i class="fa fa-download" aria-hidden="true"></i>&nbsp;&nbsp;
                 </a>
                 <button class="btn btn-sm btn-primary" id="filter_options">
@@ -30,8 +31,24 @@
                 <div class="card">
                     <div class="card-header">
                         <h3 class="card-title">View Student</h3>
+                        <div class="d-flex justify-content-end mb-3">
+                        <form action="{{ route('view_students') }}" method="GET" class="d-flex" style="max-width: 300px;">
+                            <input 
+                                type="text" 
+                                name="search" 
+                                class="form-control form-control-sm me-2" 
+                                placeholder="Search...">
+                            <button type="submit" class="btn btn-sm btn-primary">
+                                <i class="bi bi-search"></i> Search
+                            </button>
+                        </form>
+                    </div>
+
+
+
                     </div>
                     <div class="card-body table-responsive" id="view_students_card">
+
                         @if (!(is_array($students_data) && empty($students_data)))
                         @include('students.view_students.view_student_data')
                         @endif
@@ -87,7 +104,7 @@ $$key = $value;
         $("#view_students").DataTable({
             lengthMenu: [10, 25, 100, 500, 1000, 5000, 10000],
             pageLength: 25,
-            searching: true // hide the search box
+            searching: false // hide the search box
         });
 
         // Export to Excel
@@ -135,23 +152,28 @@ $$key = $value;
                     $('#modal_filter #city').selectpicker();
                     $('#modal_filter #course').selectpicker();
 
-                    $('#modal_filter #country').on('changed.bs.select', async function(e) {
+                    $('#modal_filter #country').on('changed.bs.select', async function(
+                        e) {
                         const current_country_id = $(this).val();
                         await loadOptions({
-                            current_country_id
-                        }, 'load_states', updateOptions, '#modal_filter #state');
+                                current_country_id
+                            }, 'load_states', updateOptions,
+                            '#modal_filter #state');
                     });
 
-                    $('#modal_filter #state').on('changed.bs.select', async function(e) {
+                    $('#modal_filter #state').on('changed.bs.select', async function(
+                        e) {
                         const current_state_id = $(this).val();
                         await loadOptions({
-                            current_state_id
-                        }, 'load_cities', updateOptions, '#modal_filter #city');
+                                current_state_id
+                            }, 'load_cities', updateOptions,
+                            '#modal_filter #city');
                     });
 
                     $('.modal-body').on('click', '#clear_filter', function() {
                         $('#modal_filter .filter_inputs').val("");
-                        $('#modal_filter .selectpicker').val([]).selectpicker('refresh');
+                        $('#modal_filter .selectpicker').val([]).selectpicker(
+                            'refresh');
                     });
 
                     $('#modal_filter').modal('show');
@@ -228,10 +250,12 @@ $$key = $value;
             let option = '';
 
             if (item.state) {
-                option = `<option value="${item.id}" state_name="${item.state.name}" state_id="${item.state.id}" country_id="${item.state.country.id}" country_name="${item.state.country.name}" ${selected}>${item.name}, ${item.state.name}, ${item.state.country.name}</option>`;
+                option =
+                    `<option value="${item.id}" state_name="${item.state.name}" state_id="${item.state.id}" country_id="${item.state.country.id}" country_name="${item.state.country.name}" ${selected}>${item.name}, ${item.state.name}, ${item.state.country.name}</option>`;
             } else if (item.country_id) {
                 const country_name = item.country ? item.country.name : item.country_name;
-                option = `<option value="${item.id}" country_name="${country_name}" country_id="${item.country_id}" ${selected}>${item.name}, ${country_name}</option>`;
+                option =
+                    `<option value="${item.id}" country_name="${country_name}" country_id="${item.country_id}" ${selected}>${item.name}, ${country_name}</option>`;
             } else {
                 option = `<option value="${item.id}" ${selected}>${item.name}</option>`;
             }

@@ -66,8 +66,12 @@ Route::middleware(['auth', 'verified', 'check_url_access'])->group(function () {
     Route::post('/save_personal_info', [StudentController::class, 'savePersonalInfo'])->name('save_personal_info');
     Route::post('/save_edcation_info', [StudentController::class, 'saveEdcationInfo'])->name('save_edcation_info');
     Route::post('/save_payments_info', [PaymentController::class, 'savePaymentInfo'])->name('save_payments_info');
+
     Route::post('/clear_page_session', [HomeController::class, 'clearPageSession'])->name('clear_page_session');
     Route::post('/upload_student_docs', [DocumentsController::class, 'uploadStudentDocs'])->name('upload_student_docs');
+    Route::get('/view-document/{id}', [DocumentsController::class, 'viewDocument'])->name('view_document');
+
+
     Route::post('/load_view_student_filter', [StudentController::class, 'loadViewStudentFilter'])->name('load_view_student_filter');
     Route::get('/view_employees', [EmployeeController::class, 'viewEmployees'])->name('view_employees');
     Route::post('/update_emp_status', [EmployeeController::class, 'updateEmpStatus'])->name('update_emp_status');
@@ -76,25 +80,18 @@ Route::middleware(['auth', 'verified', 'check_url_access'])->group(function () {
 
     Route::post('/search_students', [StudentController::class, 'searchStudents'])->name('search_students');
     Route::post('/update_emp_role', [EmployeeController::class, 'updateEmpRole'])->name('update_emp_role');
-    
-   
+
+
 
     Route::get('/documents', [DocumentsController::class, 'verify'])->name('documents.verify');
-Route::post('/documents/update-status', [DocumentsController::class, 'updateStatus'])->name('documents.update-status');
-Route::post('/documents/save-screenshot', [DocumentsController::class, 'saveScreenshot'])->name('documents.save-screenshot');
-Route::post('/documents/upload-screenshot', [DocumentsController::class, 'uploadScreenshot'])
-    ->name('documents.upload-screenshot');
-
-Route::get('/documents/view-screenshot/{id}', [DocumentsController::class, 'viewScreenshot'])
-    ->name('documents.view-screenshot');
+    Route::post('/documents/update-status', [DocumentsController::class, 'updateStatus'])->name('documents.update-status');
+    Route::post('/documents/upload-screenshot', [DocumentsController::class, 'uploadScreenshot'])->name('documents.upload-screenshot');
+    Route::get('/documents/view-screenshot/{id}', [DocumentsController::class, 'viewScreenshot'])->name('documents.view-screenshot');
 
 
 
-// AJAX: get active universities for dashboard modal
-Route::get('/get-universities', [StudentController::class, 'getUniversities'])->name('get_universities');
-
-
-
+    // AJAX: get active universities for dashboard modal
+    Route::get('/get-universities', [StudentController::class, 'getUniversities'])->name('get_universities');
 });
 
 Route::post('/load_cities', [LocationController::class, 'load_cities'])->name('load_cities');
@@ -115,5 +112,3 @@ Route::post('/load_promo_codes', [PaymentController::class, 'load_promo_codes'])
 Route::post('/load_card_types', [PaymentController::class, 'load_card_types'])->name('load_card_types');
 Route::post('/load_banks', [PaymentController::class, 'load_banks'])->name('load_banks');
 Route::get('/feature_not_avail', [PermissionController::class, 'feature_not_avail'])->name('feature_not_avail');
-
-

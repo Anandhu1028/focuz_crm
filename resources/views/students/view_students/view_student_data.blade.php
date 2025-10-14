@@ -1,4 +1,4 @@
-<table id="view_students" style="font-size:10pt;" class="table table-bordered table-striped dataTable dtr-inline">
+<table id="view_students" style="font-size:10pt;" class="table table-bordered table-striped">
     <thead>
         <tr>
             <th>Actions</th>
@@ -9,15 +9,12 @@
             <th>University</th>
             <th>Course</th>
             <th>Course Fee</th>
-
             <th>Pending Amount</th>
             <th>Payed Amount</th>
             <th>Payment Status</th>
             <th>Document Verification</th>
             <th>Profile Status</th>
             <th>Next Payment Date</th>
-
-
         </tr>
     </thead>
     <tbody id="tbody_view_students">
@@ -129,3 +126,67 @@
             @endforeach
     </tbody>
 </table>
+
+
+
+<script>
+    $(document).ready(function() {
+
+    let table = $('#view_students').DataTable({
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: '{{ route("view_students") }}',
+            type: 'POST',
+            data: function(d) {
+                d._token = '{{ csrf_token() }}';
+                d.name = $('#filter_name').val() || '';
+                d.email = $('#filter_email').val() || '';
+                d.phone_number = $('#filter_phone').val() || '';
+                d.gender = $('#filter_gender').val() || '';
+                d.pending_payments = $('#filter_pending_payments').val() || '';
+                d.course = $('#filter_course').val() || '';
+            }
+        },
+        columns: [
+            { data: 'actions', orderable: false, searchable: false },
+            { data: 'full_name', name: 'first_name' },
+            { data: 'student_track_id', name: 'student_track_id' },
+            { data: 'email', name: 'email' },
+            { data: 'phone_number', name: 'phone_number' },
+            { data: 'university', name: 'university' },
+            { data: 'course', name: 'course' },
+            { data: 'course_fee', name: 'course_fee' },
+            { data: 'pending_amount', name: 'pending_amount' },
+            { data: 'payed_amount', name: 'payed_amount' },
+            { data: 'payment_status', name: 'payment_status' },
+            { data: 'document_status', name: 'document_status' },
+            { data: 'profile_completion', name: 'profile_completion' },
+            { data: 'next_payment_date', name: 'next_payment_date' },
+        ],
+        lengthMenu: [10, 25, 50, 100, 500, 1000],
+        pageLength: 25,
+        order: [[1, 'asc']],
+    });
+
+    // Redraw on filter change
+    $('#filter_form input, #filter_form select').on('change keyup', function() {
+        table.draw();
+    });
+
+    // Export to Excel with current filters
+    $('#export_excel').click(function(e) {
+        e.preventDefault();
+        let params = table.ajax.params();
+        params.excel = 'true';
+        let form = $('<form method="POST" action="{{ route("view_students") }}"></form>');
+        $.each(params, function(k,v){
+            form.append($('<input>').attr('name', k).val(v));
+        });
+        form.append($('<input>').attr('name', '_token').val('{{ csrf_token() }}'));
+        $('body').append(form);
+        form.submit();
+    });
+});
+
+</script>

@@ -1,4 +1,4 @@
-F<div class="card card-default ">
+<div class="card card-default ">
     {{-- collapsed-card --}}
     <div class="card-header">
         <h3 class="card-title"> Document Upload</h3>
@@ -34,34 +34,36 @@ F<div class="card card-default ">
                         <th>Path</th>
                     </tr>
                     @foreach ($documentCategoriesAr as $key => $documentCategory)
-                        <tr>
-                            <td>{{ $key + 1 }}</td>
-                            <input type="hidden" value="{{ $documentCategory->id }}" name="document_category[]"
-                                class="document_category">
-                            <td>{{ $documentCategory->category_name }}</td>
-                            <td> <input type="file" id="file_{{ $documentCategory->id }}"
-                                    name="file_{{ $documentCategory->id }}" class="files form-control form-control-sm">
-                            </td>
-                            <td>
-                                @php
-                                    $documents = App\Models\Documents::select('document_path')
-                                        ->where('student_id', $student_id_url)
-                                        ->where('doc_category_id', $documentCategory->id)
-                                        ->first();
-                                    if ($documents && $documents->document_path) {
-                                        $document_path = $documents->document_path;
-                                    } else {
-                                        $document_path = '';
-                                    }
-                                @endphp
-                                @if ($document_path != '')
-                                    <a href="{{ asset('storage/' . $document_path) }}" target="_blank">View file</a>
-                                @else
-                                    <a href="" id="file_path_{{ $documentCategory->id }}" target="_blank"></a>
-                                @endif
+                    <tr>
+                        <td>{{ $key + 1 }}</td>
+                        <input type="hidden" value="{{ $documentCategory->id }}" name="document_category[]"
+                            class="document_category">
+                        <td>{{ $documentCategory->category_name }}</td>
+                     
+                        <td> <input type="file" id="file_{{ $documentCategory->id }}"
+                                name="file_{{ $documentCategory->id }}" class="files form-control form-control-sm">
+                        </td>
+                        <td>
+                            @php
+                            $documents = App\Models\Documents::select('document_path')
+                            ->where('student_id', $student_id_url)
+                            ->where('doc_category_id', $documentCategory->id)
+                            ->first();
+                            if ($documents && $documents->document_path) {
+                            $document_path = $documents->document_path;
+                            } else {
+                            $document_path = '';
+                            }
+                            @endphp
+                            @if ($document_path != '')
+                            <a href="{{ asset($document_path) }}" target="_blank">View file</a>
+                            @else
+                            <a href="" id="file_path_{{ $documentCategory->id }}" target="_blank"></a>
+                            @endif
 
-                            </td>
-                        </tr>
+
+                        </td>
+                    </tr>
                     @endforeach
                 </table>
 
@@ -88,7 +90,8 @@ F<div class="card card-default ">
             var formData = new FormData(this);
             //console.log(formData)
             $.ajax({
-                url: '{{route('upload_student_docs')}}', // Laravel route for file upload
+                url: '{{ route('
+                upload_student_docs ') }}', // Laravel route for file upload
                 type: 'POST',
                 data: formData,
                 contentType: false,

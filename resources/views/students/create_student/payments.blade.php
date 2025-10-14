@@ -633,11 +633,20 @@
                     updateProgress(response.prolfile_completed[0], response.prolfile_completed[1],
                         'primary');
                 }
+                
+            
 
                 loadPayedAmount($('#course_period').val());
                 // $('#register_new_payment').removeClass('d-none');
                 // $('#reverse_transaction').val('false');
                 // $('#reverse_payment').removeClass('d-none');
+               
+               
+               setTimeout(function() {
+                // Use student_track_id in the query string
+                window.location.href = "{{ route('view_students') }}?student_id=" + response.student_track_id;
+            }, 1500);
+
 
 
             },
