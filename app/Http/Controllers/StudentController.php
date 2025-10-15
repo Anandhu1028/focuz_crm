@@ -785,7 +785,7 @@ class StudentController extends Controller
 
                 ->get();
 
-
+            
             $documentsData = Documents::with(
                 'doc_category:id,category_name',
             )

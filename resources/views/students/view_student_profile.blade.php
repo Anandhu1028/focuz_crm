@@ -7,33 +7,19 @@
             <div class="col">
                 <div class="progress mb-2">
                     @if ($profile_completed == 0)
-                    @php
-                    $profile_completed_per = 15;
-                    @endphp
+                        @php
+                            $profile_completed_per = 15;
+                        @endphp
                     @else
-                    @php
-                    $profile_completed_per = $profile_completed * 25;
-                    @endphp
+                        @php
+                            $doc_status = $documentsDataAr->pluck('status');
+                            if ($doc_status->every(fn($status) => $status === 'approved')) {
+                                $profile_completed_per = 75;
+                            }
+                            $profile_completed_per = $profile_completed * 25;
+                        @endphp
                     @endif
-                    @php
-                    // Base progress after personal info + education
-                    $profile_completed_per = 50;
-
-                    // Check the student's documents
-                    if(isset($student->documents) && count($student->documents)) {
-                    // Get all document statuses
-                    $statuses = collect($student->documents)->pluck('status')->toArray();
-
-                    if(in_array('approved', $status)) {
-                    // If any document is approved
-                    $profile_completed_per = 75;
-                    } elseif(in_array('rejected', $status) && !in_array('approved', $status)) {
-                    // If all documents rejected → keep 50%
-                    $profile_completed_per = 50;
-                    }
-                    // Pending documents will stay at base 50%
-                    }
-                    @endphp
+                    
 
                     <div class="progress-bar bg-{{ $completed_levels[$profile_completed_per . '%'] ?? 'bg-primary' }}"
                         role="progressbar"
