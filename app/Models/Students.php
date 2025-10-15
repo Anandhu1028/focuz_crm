@@ -95,4 +95,10 @@ class Students extends Model
     {
         return $this->belongsTo(CourseInstallments::class, 'student_id');
     }
+
+    public function documents()
+{
+    return $this->hasMany(\App\Models\Documents::class, 'student_id', 'id');
+}
+
 }

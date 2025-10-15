@@ -6,6 +6,7 @@ use App\Models\Documents;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use App\Models\Students;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
@@ -106,23 +107,50 @@ class DocumentsController extends Controller
 
 
     // Show verification page (list)
-    public function verify(Request $request)
-    {
-        $search = $request->input('search');
+ public function verify(Request $request)
+{
+    $search = $request->input('search');
 
-        $documentsQuery = Documents::with(['student', 'doc_category', 'verifiedBy']);
+    // Base query
+    $studentsQuery = \App\Models\Students::query();
 
-        if (!empty($search)) {
-            $documentsQuery->whereHas('student', function ($query) use ($search) {
-                $query->where('first_name', 'like', "%{$search}%")
-                    ->orWhere('last_name', 'like', "%{$search}%");
-            });
-        }
-
-        $documents = $documentsQuery->paginate(25)->withQueryString();
-
-        return view('documents.verify', compact('documents', 'search'));
+    // Optional search
+    if (!empty($search)) {
+        $studentsQuery->where(function ($query) use ($search) {
+            $query->where('first_name', 'like', "%{$search}%")
+                  ->orWhere('last_name', 'like', "%{$search}%");
+        });
     }
+
+    // Only students with at least one document NOT approved
+    $studentsQuery->whereHas('documents', function ($q) {
+        $q->whereIn('status', ['pending', 'rejected']);
+    });
+
+    // Load documents and category
+    $students = $studentsQuery->with('documents.doc_category')->get();
+
+    // Map for Blade
+    $students = $students->map(function ($student) {
+        return [
+            'id' => $student->id,
+            'first_name' => $student->first_name ?? 'N/A',
+            'last_name' => $student->last_name ?? 'N/A',
+            'documents' => $student->documents->map(function ($doc) {
+                return [
+                    'id' => $doc->id,
+                    'doc_category' => $doc->doc_category ? ['category_name' => $doc->doc_category->category_name] : null,
+                    'document_path' => $doc->document_path,
+                    'status' => $doc->status ?? 'pending'
+                ];
+            })->values()
+        ];
+    });
+
+    return view('documents.verify', compact('students', 'search'));
+}
+
+
 
 
 
@@ -205,37 +233,34 @@ class DocumentsController extends Controller
     }
 
     public function updateStatus(Request $request)
-{
-    try {
-        $request->validate([
-            'document_id' => 'required|exists:documents,id',
-            'status' => 'required|in:approved,rejected'
-        ]);
+    {
+        try {
+            $request->validate([
+                'document_id' => 'required|exists:documents,id',
+                'status' => 'required|in:approved,rejected'
+            ]);
 
-        $doc = Documents::findOrFail($request->document_id);
+            $doc = Documents::findOrFail($request->document_id);
 
-        $doc->update([
-            'status'      => $request->status,
-            'verified_by' => auth()->id() ?? null,
-            'verified_at' => now(),
-            'doc_verified'=> $request->status === 'approved' ? 1 : 0
-        ]);
+            $doc->update([
+                'status'      => $request->status,
+                'verified_by' => auth()->id() ?? null,
+                'verified_at' => now(),
+                'doc_verified' => $request->status === 'approved' ? 1 : 0
+            ]);
 
-        return response()->json([
-            'success'      => true,
-            'status'       => $doc->status,
-            'doc_verified' => $doc->doc_verified,
-            'message'      => 'Document has been ' . $doc->status
-        ]);
-
-    } catch (\Throwable $e) {
-        \Log::error('Document update failed: ' . $e->getMessage());
-        return response()->json([
-            'success' => false,
-            'message' => $e->getMessage(),
-        ], 500);
+            return response()->json([
+                'success'      => true,
+                'status'       => $doc->status,
+                'doc_verified' => $doc->doc_verified,
+                'message'      => 'Document has been ' . $doc->status
+            ]);
+        } catch (\Throwable $e) {
+            \Log::error('Document update failed: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
     }
 }
-
-}
-    

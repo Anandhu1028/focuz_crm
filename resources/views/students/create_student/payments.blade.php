@@ -173,7 +173,7 @@
                 </div>
 
                 <div class="col-md-6">
-                    <div class="form-group">
+                    <div class="form-group">1959
                         <label for="card_type">Card Type</label>
                         <select name="card_type" id="card_type" data-size="5" url="load_card_types"
                             class="form-control form-control-sm selectpicker selectpicker_load" data-live-search>

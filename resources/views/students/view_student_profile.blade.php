@@ -15,11 +15,37 @@
                     $profile_completed_per = $profile_completed * 25;
                     @endphp
                     @endif
-                    <div class="progress-bar bg-{{ $completed_levels[$profile_completed_per . '%'] }}" role="progressbar"
-                        aria-valuenow="40" aria-valuemin="0" aria-valuemax="100"
+                    @php
+                    // Base progress after personal info + education
+                    $profile_completed_per = 50;
+
+                    // Check the student's documents
+                    if(isset($student->documents) && count($student->documents)) {
+                    // Get all document statuses
+                    $statuses = collect($student->documents)->pluck('status')->toArray();
+
+                    if(in_array('approved', $status)) {
+                    // If any document is approved
+                    $profile_completed_per = 75;
+                    } elseif(in_array('rejected', $status) && !in_array('approved', $status)) {
+                    // If all documents rejected → keep 50%
+                    $profile_completed_per = 50;
+                    }
+                    // Pending documents will stay at base 50%
+                    }
+                    @endphp
+
+                    <div class="progress-bar bg-{{ $completed_levels[$profile_completed_per . '%'] ?? 'bg-primary' }}"
+                        role="progressbar"
+                        aria-valuenow="{{ $profile_completed_per }}"
+                        aria-valuemin="0"
+                        aria-valuemax="100"
                         style="width: {{ $profile_completed_per }}%">
-                        <span>{{ $profile_completed * 25 }}% Completed </span>
+                        <span>{{ $profile_completed_per }}% Completed</span>
                     </div>
+
+
+
 
 
                 </div>
@@ -79,7 +105,7 @@
                 <div id="payments_part" class="content" role="tabpanel" aria-labelledby="payments_part-trigger">
                     @include('students.student_profile.view_payments')
                 </div>
-               
+
             </div>
         </div>
 
@@ -103,6 +129,7 @@
                 } else if (currentStepIndex == 3) {
                     save_payments_form();
                 }
+
 
             }
         });
