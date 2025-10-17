@@ -29,7 +29,13 @@
                       </p>
                   </a>
               </li>
-               
+              <li class="nav-item">
+                    <a href="{{ route('offer_letters.test') }}" class="nav-link">
+                        <i class="nav-icon fa fa-file-alt"></i>
+                        <p>Offer Letters</p>
+                    </a>
+                </li>
+
            
               <li class="nav-item">
                   <a href="#" class="nav-link">

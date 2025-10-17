@@ -11,13 +11,18 @@
                             $profile_completed_per = 15;
                         @endphp
                     @else
-                        @php
+                       @php
                             $doc_status = $documentsDataAr->pluck('status');
+
                             if ($doc_status->every(fn($status) => $status === 'approved')) {
                                 $profile_completed_per = 75;
+                            } elseif ($doc_status->contains(fn($status) => in_array($status, ['pending', 'rejected']))) {
+                                $profile_completed_per = 50;
+                            } else {
+                                $profile_completed_per = $profile_completed * 25;
                             }
-                            $profile_completed_per = $profile_completed * 25;
                         @endphp
+
                     @endif
                     
 

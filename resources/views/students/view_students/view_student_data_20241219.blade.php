@@ -6,14 +6,13 @@
             <th>Track Id</th>
             <th>Email</th>
             <th>Phone</th>
-
             <th>University</th>
             <th>Course</th>
             <th>Course Fee</th>
             <th>Pending Amount</th>
             <th>Payed Amount</th>
+            <td>Transaction Ref No</td>
             <th>Payment Status</th>
-            
             <th>Profile Status</th>
             <th>Next Payment Date</th>
         </tr>

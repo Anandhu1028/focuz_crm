@@ -24,4 +24,17 @@ class CoursePayments extends Model
     {
         return $this->belongsTo(Students::class, 'student_id'); // Assuming 'branch_id' is the foreign key
     }
+    
+        public function payments()
+{
+    return $this->hasMany(\App\Models\Payments::class, 'course_id', 'course_id')
+                ->where(function ($query) {
+                    $query->where('student_id', $this->student_id);
+                });
+}
+
+
+   
+
+
 }

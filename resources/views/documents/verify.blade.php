@@ -30,24 +30,24 @@
                         <tr>
                             <th>SL No</th>
                             <th>Student</th>
-                            <th>Status</th>
                             <th>Email</th>
                             <th>Phone</th>
                             
+                            <th>Status</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($students as $index => $student)
                         @php
-                            $statuses = collect($student['documents'])->pluck('status')->toArray();
-                            if (in_array('pending', $statuses)) $overall = 'pending';
-                            elseif (in_array('rejected', $statuses)) $overall = 'rejected';
-                            elseif (in_array('approved', $statuses)) $overall = 'approved';
-                            else $overall = 'pending';
+                        $statuses = collect($student['documents'])->pluck('status')->toArray();
+                        if (in_array('pending', $statuses)) $overall = 'pending';
+                        elseif (in_array('rejected', $statuses)) $overall = 'rejected';
+                        elseif (in_array('approved', $statuses)) $overall = 'approved';
+                        else $overall = 'pending';
 
-                            $first = $student['first_name'] ?? '';
-                            $last = isset($student['last_name']) && strtolower(trim($student['last_name'])) !== 'n/a' ? $student['last_name'] : '';
-                            $fullName = trim($first . ' ' . $last);
+                        $first = $student['first_name'] ?? '';
+                        $last = isset($student['last_name']) && strtolower(trim($student['last_name'])) !== 'n/a' ? $student['last_name'] : '';
+                        $fullName = trim($first . ' ' . $last);
                         @endphp
                         <tr>
                             <td>{{ $index + 1 }}</td>
@@ -56,7 +56,10 @@
                                     {{ $fullName }}
                                 </a>
                             </td>
-                            <td></td>
+                            <td>{{ $student['email'] ?? 'N/A' }}</td>
+                            <td>{{ $student['phone_number'] ?? 'N/A' }}</td>
+                            
+
                             <td class="{{ $overall == 'approved' ? 'text-success' : ($overall == 'rejected' ? 'text-danger' : 'text-warning') }}">
                                 {{ ucfirst($overall) }}
                             </td>
@@ -91,27 +94,27 @@
 
 @section('script')
 <script>
-const allStudents = @json($students);
+    const allStudents = @json($students);
 
-$('#students_table').DataTable({
-    lengthMenu: [5, 10, 25, 50],
-    pageLength: 25,
-    searching: false,
-    paging: true,
-    info: true
-});
+    $('#students_table').DataTable({
+        lengthMenu: [5, 10, 25, 50],
+        pageLength: 25,
+        searching: false,
+        paging: true,
+        info: true
+    });
 
-// Open modal on student name click
-$(document).on('click', '.student-link', function(e) {
-    e.preventDefault();
-    const studentId = $(this).data('student');
-    const student = allStudents.find(s => s.id === studentId);
-    if (!student) return;
+    // Open modal on student name click
+    $(document).on('click', '.student-link', function(e) {
+        e.preventDefault();
+        const studentId = $(this).data('student');
+        const student = allStudents.find(s => s.id === studentId);
+        if (!student) return;
 
-    const lastName = student.last_name && student.last_name.trim().toLowerCase() !== 'n/a' ? student.last_name : '';
-    const fullName = ((student.first_name ?? '') + (lastName ? ' ' + lastName : '')).trim();
+        const lastName = student.last_name && student.last_name.trim().toLowerCase() !== 'n/a' ? student.last_name : '';
+        const fullName = ((student.first_name ?? '') + (lastName ? ' ' + lastName : '')).trim();
 
-    let html = `<h5>Student: ${fullName}</h5>
+        let html = `<h5>Student: ${fullName}</h5>
                 <table class="table table-bordered table-striped align-middle">
                     <thead>
                         <tr>
@@ -123,21 +126,20 @@ $(document).on('click', '.student-link', function(e) {
                     </thead>
                     <tbody>`;
 
-    const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'jfif'];
+        const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'jfif'];
 
-    student.documents.forEach(doc => {
-        let thumbHtml = '<span class="text-danger">No file ❌</span>';
+        student.documents.forEach(doc => {
+            let thumbHtml = '<span class="text-danger">No file ❌</span>';
 
-        if (doc.document_path) {
-            // Ensure correct base URL
-            const baseUrl = "{{ asset('') }}".replace(/\/+$/, '') + '/';
-            const relativePath = doc.document_path.replace(/^\/+/, '');
-            const fileUrl = baseUrl + relativePath;
+            if (doc.document_path) {
+                const baseUrl = "{{ asset('') }}".replace(/\/+$/, '') + '/';
+                const relativePath = doc.document_path.replace(/^\/+/, '');
+                const fileUrl = baseUrl + relativePath;
 
-            const fileExt = doc.document_path.split('.').pop().toLowerCase();
+                const fileExt = doc.document_path.split('.').pop().toLowerCase();
 
-            if (imageExtensions.includes(fileExt)) {
-                thumbHtml = `
+                if (imageExtensions.includes(fileExt)) {
+                    thumbHtml = `
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="d-flex align-items-center">
                             <div class="border rounded p-1 me-2">
@@ -146,21 +148,21 @@ $(document).on('click', '.student-link', function(e) {
                             <span class="text-muted small"></span>
                         </div>
                         <a href="${fileUrl}" target="_blank" class="btn btn-sm btn-warning">
-                            <i class="bi bi-eye"></i> Vew
+                            <i class="bi bi-eye"></i> View
                         </a>
                     </div>`;
-            } else {
-                thumbHtml = `
+                } else {
+                    thumbHtml = `
                     <div class="d-flex justify-content-between align-items-center">
-                        <span class="text-muted"> </span>
+                        <span class="text-muted"></span>
                         <a href="${fileUrl}" target="_blank" class="btn btn-sm btn-warning">
                             <i class="bi bi-eye"></i> View
                         </a>
                     </div>`;
+                }
             }
-        }
 
-        html += `<tr>
+            html += `<tr>
                     <td>${doc.doc_category?.category_name ?? 'N/A'}</td>
                     <td>${thumbHtml}</td>
                     <td class="${
@@ -176,19 +178,18 @@ $(document).on('click', '.student-link', function(e) {
                         </button>
                     </td>
                  </tr>`;
+        });
+
+        html += `</tbody></table>`;
+        $('#studentDocuments').html(html);
+
+        const modalEl = document.getElementById('studentModal');
+        const modal = new bootstrap.Modal(modalEl);
+        modal.show();
     });
 
-    html += `</tbody></table>`;
-    $('#studentDocuments').html(html);
-
-    const modalEl = document.getElementById('studentModal');
-    const modal = new bootstrap.Modal(modalEl);
-    modal.show();
-});
-
-
-
-// Approve / Reject via AJAX — live update
+    // Approve / Reject via AJAX — live update
+   // Approve / Reject via AJAX — live update
 $(document).on('click', '.update-status', function() {
     const id = $(this).data('id');
     const status = $(this).data('status');
@@ -200,26 +201,22 @@ $(document).on('click', '.update-status', function() {
         status: status
     }, res => {
         if (res.success) {
-            // Update modal table status
+            // Optional: update modal cell visually first
             const statusCell = $(`#studentDocuments button[data-id="${id}"]`).closest('tr').find('td').eq(2);
             statusCell
                 .removeClass('text-success text-danger text-warning')
                 .addClass(status === 'approved' ? 'text-success' : 'text-danger')
                 .html(status === 'approved' ? 'Approved' : 'Rejected');
 
-            // Update main Blade tick / cross if present
-            const mainStatusCell = $(`td.doc-verified[data-doc-id="${id}"]`);
-            if (mainStatusCell.length) {
-                mainStatusCell.html(status === 'approved'
-                    ? '<i class="fas fa-check text-success"></i>'
-                    : '<i class="fas fa-times text-danger"></i>');
-            }
-
             alert('Status updated!');
+
+            // Refresh the page automatically
+            location.reload();
         } else {
             alert('Error updating status.');
         }
     });
 });
+
 </script>
 @endsection
