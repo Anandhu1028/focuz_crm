@@ -322,13 +322,13 @@ class PaymentController extends Controller
         } else {
             $query = CoursePayments::select(
                 'course_payments.*',
-                DB::raw('REGEXP_SUBSTR(student_track_id, "[0-9]+$") AS last_number')
+                DB::raw("SUBSTRING_INDEX(student_track_id, '/', -1) AS last_number")
             )
                 ->join('courses', 'courses.id', '=', 'course_payments.course_id')
                 ->where('courses.university_id', $universityCode)
                 ->where('course_payments.branch_id', $branch_id)
                 ->where('course_payments.student_track_id', 'like', 'FCZ%')
-                ->orderByRaw('CAST(REGEXP_SUBSTR(student_track_id, "[0-9]+$") AS UNSIGNED) DESC')
+                ->orderByRaw("CAST(SUBSTRING_INDEX(student_track_id, '/', -1) AS UNSIGNED) DESC")
                 ->limit(1);
             // return $query;
             if ($query === null) {
@@ -366,13 +366,13 @@ class PaymentController extends Controller
         // return Auth::user()->role_id;
         $query = CoursePayments::select(
             'course_payments.*',
-            DB::raw('REGEXP_SUBSTR(student_track_id, "[0-9]+$", 1, 1) AS last_number')
+            DB::raw("SUBSTRING_INDEX(student_track_id, '/', -1) AS last_number")
         )
             ->join('courses', 'courses.id', '=', 'course_payments.course_id')
             ->where('courses.university_id', 9233)
             ->where('course_payments.branch_id', 2)
             ->where('course_payments.student_track_id', 'like', 'FCZ%')
-            ->orderByRaw('CAST(REGEXP_SUBSTR(student_track_id, "[0-9]+$", 1, 1) AS UNSIGNED) DESC')
+            ->orderByRaw("CAST(SUBSTRING_INDEX(student_track_id, '/', -1) AS UNSIGNED) DESC")
             ->limit(1);
         $sql = $query->toSql();
         $bindings = $query->getBindings();

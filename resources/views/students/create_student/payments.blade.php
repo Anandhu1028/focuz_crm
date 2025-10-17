@@ -343,7 +343,6 @@
         });
 
         $('#course').on('show.bs.select', function(e) {
-            e.preventDefault();
             load_courses_data();
         });
 
