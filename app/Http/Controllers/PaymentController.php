@@ -522,20 +522,27 @@ class PaymentController extends Controller
             'rows_remove_ids' => $approved_invoices
         ]);
     }
+    
+    
 
-     public function InvoicePrint(Request $request)
+       public function InvoicePrint(Request $request)
     {
-
         $checked_ids = $request->input('checkedIdsJson');
-        if (count($checked_ids) == 1) {
-            $pdf_path = $this->InvoiceGenerate($checked_ids[0], false, 'print');
-            return $pdf_path;
+    
+        if (!is_array($checked_ids) || count($checked_ids) == 0) {
+            return response()->json(['error' => 'No invoice selected'], 400);
         }
-        // foreach ($checked_ids as $checked_id) {
-
-        //     // array_push($pdfPaths, $pdf_path);
-        // }
+    
+        $pdf_path = $this->InvoiceGenerate($checked_ids[0], false, 'print');
+    
+        if (file_exists($pdf_path)) {
+            return response()->download($pdf_path, basename($pdf_path));
+        } else {
+            return response()->json(['error' => 'PDF not found'], 404);
+        }
     }
+
+
 
     public function InvoiceGenerate($checked_id, $return_data = false, $print = '')
     {

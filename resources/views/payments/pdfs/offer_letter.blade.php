@@ -74,7 +74,7 @@
 
         .logo {
             width: 138px;
-            height: 116px;
+            height: 147px;
             position: absolute;
             top: 5px;
             left: -30px;
@@ -97,7 +97,8 @@
             font-size: 20px;
             font-weight: bold;
         }
-
+        
+        
         /* Greetings */
         .dear-student {
             color: #4472C4;
@@ -287,7 +288,7 @@
     <!-- PAGE 1 -->
     <div class="page">
         <div class="header">
-            <img src="{{ public_path('logo.png') }}" alt="Focuz Academy Logo" class="logo">
+            <img src="{{ asset('logo.png') }}" alt="Focuz Academy Logo" class="logo">
             <div class="header-text">
                 <h1>Focuz Academy</h1>
             </div>
@@ -314,18 +315,17 @@
 
         <div class="section-title">Student Details</div>
         <table class="student-details-table">
-            <tr>
+           <tr>
                 <td>Name of the Student</td>
-                <td>{{ $student->first_name . ' '. $student->last_name}}</td>
+                <td>ABHIN S KRISHNA</td>
             </tr>
             <tr>
                 <td>Registered Mobile Number</td>
-                <td>{{ $student->phone_number}}</td>
+                <td>+91 9876543210</td>
             </tr>
-            
             <tr>
                 <td>Email Address</td>
-                <td>{{ $student->email}}</td>
+                <td>abhiachuzvz007@gmail.com</td>
             </tr>
             <tr>
                 <td>Course / Specialization</td>
@@ -333,39 +333,39 @@
             </tr>
             <tr>
                 <td>University</td>
-                <td>{{ $student -> university }}</td>
+                <td>Kannur University</td>
             </tr>
             <tr>
                 <td>Center</td>
-                <td>{{$student -> center}}</td>
+                <td>Focuz Academy, Kochi</td>
             </tr>
             <tr>
                 <td>Track ID</td>
+                <td>FA-2024-001</td>
+            </tr>
+            <tr>
+                <td>Total Fee</td>
                 <td>45,000/-</td>
             </tr>
             <tr>
-                <td>Piad</td>
+                <td>Paid</td>
                 <td>7,500/-</td>
             </tr>
             <tr>
                 <td>Initial Receipt Number</td>
                 <td>16,688</td>
             </tr>
-            </tr>
             <tr>
-                <td>Admission Executive </td>
+                <td>Admission Executive</td>
                 <td>JINCY</td>
-            </tr>
             </tr>
             <tr>
                 <td>Customer Relation Executive</td>
                 <td>ATHIRA</td>
             </tr>
-            </tr>
             <tr>
                 <td>Contact Number</td>
                 <td>+91 8086652555</td>
-            </tr>
             </tr>
             <tr>
                 <td>Email</td>
@@ -384,13 +384,13 @@
     <!-- PAGE 2 -->
     <div class="page">
         <div class="header">
-            <img src="{{ public_path('logo.png') }}" alt="Focuz Academy Logo" class="logo">
+            <img src="{{ asset('logo.png') }}" alt="Focuz Academy Logo" class="logo">
             <div class="header-text">
                 <h1></h1>
             </div>
         </div>
 
-        <div class="section-title">Course Phases</div>
+        <div class="section-title2">Course Phases</div>
         <p class="content-text">Your course has different phases that make it easier to complete a degree certificate.
             All of these phases are illustrated as follow.</p>
 
@@ -431,7 +431,31 @@
             </div>
         </div>
 
+        
+
+        <div class="footer">
+            <p>www.focuzacademy.com</p>
+        </div>
+    </div>
+
+    <!-- PAGE 3 -->
+    <div class="page">
+        <div class="header">
+            <svg class="logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="50" cy="50" r="48" fill="#4472C4" stroke="#2E5C9A" stroke-width="2" />
+                <path d="M30 45 L50 25 L70 45 L65 45 L65 65 L55 65 L55 50 L45 50 L45 65 L35 65 L35 45 Z"
+                    fill="white" />
+                <path d="M50 35 L45 40 L55 40 Z" fill="#FFD700" />
+                <circle cx="50" cy="70" r="3" fill="white" />
+                <text x="50" y="88" font-size="8" fill="white" text-anchor="middle" font-weight="bold">FOCUZ</text>
+            </svg>
+            <div class="header-text">
+                <h1>Focuz Academy</h1>
+            </div>
+        </div>
+
         <div class="phase-section">
+            <div class="phase-section">
             <div class="phase-title">2. Registration Phase</div>
             <p class="content-text">Minimum fee of university registration will be first year fee.</p>
             <p class="content-text">Students can check their University registration, Photo verification, Course &
@@ -466,29 +490,6 @@
                 registration. There will be an extra charge for text book (Hard copy). Once you get the text books
                 student should give the students affairs executive the acknowledgement.</p>
         </div>
-
-        <div class="footer">
-            <p>www.focuzacademy.com</p>
-        </div>
-    </div>
-
-    <!-- PAGE 3 -->
-    <div class="page">
-        <div class="header">
-            <svg class="logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="50" cy="50" r="48" fill="#4472C4" stroke="#2E5C9A" stroke-width="2" />
-                <path d="M30 45 L50 25 L70 45 L65 45 L65 65 L55 65 L55 50 L45 50 L45 65 L35 65 L35 45 Z"
-                    fill="white" />
-                <path d="M50 35 L45 40 L55 40 Z" fill="#FFD700" />
-                <circle cx="50" cy="70" r="3" fill="white" />
-                <text x="50" y="88" font-size="8" fill="white" text-anchor="middle" font-weight="bold">FOCUZ</text>
-            </svg>
-            <div class="header-text">
-                <h1>Focuz Academy</h1>
-            </div>
-        </div>
-
-        <div class="phase-section">
             <div class="phase-title">3. Study Materials</div>
             <p class="content-text">University Registration begins as per the notification from the university and end
                 on or before a specified date, which will be updated by your student's affairs executive.</p>

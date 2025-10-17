@@ -31,20 +31,19 @@
                 <div class="card">
                     <div class="card-header">
                         <h3 class="card-title">View Student</h3>
-                        <div class="d-flex justify-content-end mb-3">
-                        <form action="{{ route('view_students') }}" method="GET" class="d-flex" style="max-width: 300px;">
-                            <input 
-                                type="text" 
-                                name="search" 
-                                class="form-control form-control-sm me-2" 
-                                placeholder="Search...">
-                            <button type="submit" class="btn btn-sm btn-primary">
-                                <i class="bi bi-search"></i> Search
-                            </button>
-                        </form>
-                    </div>
-
-
+                       <div class="d-flex justify-content-end mb-3">
+                            <form id="search-form" class="d-flex" style="max-width: 300px;">
+                                <input 
+                                    type="text" 
+                                    name="search" 
+                                    id="search" 
+                                    class="form-control form-control-sm me-2"  
+                                    placeholder="Search...">
+                                <button type="submit" class="btn btn-sm btn-primary">
+                                    <i class="bi bi-search"></i> Search
+                                </button>
+                            </form>
+                        </div>
 
                     </div>
                     <div class="card-body table-responsive" id="view_students_card">
@@ -108,7 +107,7 @@ $$key = $value;
         });
 
         // Export to Excel
-        // Export Excel
+       
         document.getElementById('export_excel').addEventListener('click', function() {
             const form = document.createElement('form');
             form.method = 'POST';

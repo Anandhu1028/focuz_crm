@@ -55,10 +55,10 @@
                                     }
                                 @endphp
                                @if ($document_path != '')
-    <a href="{{ asset($document_path) }}" target="_blank">View file</a>
-@else
-    <a href="" id="file_path_{{ $documentCategory->id }}" target="_blank"></a>
-@endif
+                                    <a href="{{ asset($document_path) }}" target="_blank">View file</a>
+                                @else
+                                    <a href="" id="file_path_{{ $documentCategory->id }}" target="_blank"></a>
+                                @endif
 
 
                             </td>

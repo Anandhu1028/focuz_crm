@@ -269,7 +269,7 @@ class StudentController extends Controller
             'student_id' => 'required|string|max:255',
             // 'course_name' => 'nullable|string|max:255', //field_of_study
             'other_institute_name' => 'required|string|max:255', //field_of_study
-            'gpa' => 'nullable|string|max:255', //field_of_study
+            'gpa' => 'nullable|string|max:255',
             'abc_id' => 'nullable|string|max:255',
             'deb_id' => 'nullable|string|max:255',
             'sslc_board' => 'required|string|max:255',
@@ -325,89 +325,89 @@ class StudentController extends Controller
     }
 
     public function view_students(Request $request, $search = null)
-{
-    $data_posted = false;
-    $data = [];
-    if ($request->isMethod('post')) {
-        $data = $request->all();
-        unset($data['_token']);
-        $data_posted = empty(array_filter($data)) ? true : false;
-    }
+    {
+        $data_posted = false;
+        $data = [];
+        if ($request->isMethod('post')) {
+            $data = $request->all();
+            unset($data['_token']);
+            $data_posted = empty(array_filter($data)) ? true : false;
+        }
 
-    $studentsQuery = DB::table('students')
-        ->leftJoin('course_payments', 'students.id', '=', 'course_payments.student_id')
-        ->leftJoin('documents', 'students.id', '=', 'documents.student_id');
+        $studentsQuery = DB::table('students')
+            ->leftJoin('course_payments', 'students.id', '=', 'course_payments.student_id')
+            ->leftJoin('documents', 'students.id', '=', 'documents.student_id');
 
-    $university_id = $request->input('university_id', session('selected_university_id'));
+        $university_id = $request->input('university_id', session('selected_university_id'));
 
-    if (!empty($university_id)) {
-        session(['selected_university_id' => $university_id]); // Keep session updated
+        if (!empty($university_id)) {
+            session(['selected_university_id' => $university_id]); // Keep session updated
 
-        $studentsQuery->whereExists(function ($query) use ($university_id) {
-            $query->select(DB::raw(1))
-                ->from('course_payments')
-                ->join('course_schedules', 'course_payments.course_schedule_id', '=', 'course_schedules.id')
-                ->join('courses', 'course_schedules.course_id', '=', 'courses.id')
-                ->whereRaw('course_payments.student_id = students.id')
-                ->where('courses.university_id', $university_id);
-        });
-    }
+            $studentsQuery->whereExists(function ($query) use ($university_id) {
+                $query->select(DB::raw(1))
+                    ->from('course_payments')
+                    ->join('course_schedules', 'course_payments.course_schedule_id', '=', 'course_schedules.id')
+                    ->join('courses', 'course_schedules.course_id', '=', 'courses.id')
+                    ->whereRaw('course_payments.student_id = students.id')
+                    ->where('courses.university_id', $university_id);
+            });
+        }
 
-    // Filter by student_track_id if passed in URL
-    $student_track_id = $request->query('student_id');
-    if (!empty($student_track_id)) {
-        $studentsQuery->where('course_payments.student_track_id', $student_track_id);
-    }
-    
+        // Filter by student_track_id if passed in URL
+        $student_track_id = $request->query('student_id');
+        if (!empty($student_track_id)) {
+            $studentsQuery->where('course_payments.student_track_id', $student_track_id);
+        }
 
-    $studentsQuery = $studentsQuery->select(
-        'students.id',
-        'students.city_id',
-        'students.state_id',
-        'students.country_id',
-        'students.identity_card_id',
-        'students.date_of_birth',
-        'students.address',
-        'students.identity_card_no',
-        'students.first_name',
-        'students.last_name',
-        'students.email',
-        'students.phone_number',
-        'students.postal_code',
-        'students.profile_completion',
-        'documents.status as document_status',
-        'course_payments.id as payment_id',
-        'course_payments.admission_date',
-        'course_payments.payment_status',
-        'course_payments.course_schedule_id',
-        'course_payments.amount',
-        'course_payments.discount',
-        'course_payments.next_payment_date',
-        'course_payments.created_by',
-        'course_payments.student_track_id',
-        'course_payments.university_loginid',
-        'course_payments.university_loginpass',
-        'course_payments.branch_id'
-    )->distinct();
 
-    // Filters map
-    $filters = [
-        'first_name' => ['column' => 'students.first_name', 'operator' => 'like'],
-        'gender' => ['column' => 'students.gender', 'operator' => '='],
-        'phone_number' => ['column' => 'students.phone_number', 'operator' => 'like'],
-        'marital_status' => ['column' => 'students.marital_status', 'operator' => 'in'],
-        'email' => ['column' => 'students.email', 'operator' => 'like'],
-        'employment_status' => ['column' => 'students.employment_status', 'operator' => 'in'],
-        'pending_profile_completion' => ['column' => 'students.profile_completion', 'operator' => '='],
-        'pending_payments' => ['column' => 'course_payments.payment_status', 'operator' => '='],
-        'city' => ['column' => 'students.city_id', 'operator' => 'in'],
-        'state' => ['column' => 'students.state_id', 'operator' => '='],
-        'country' => ['column' => 'students.country_id', 'operator' => '='],
-        'course' => ['column' => 'course_payments.course_id', 'operator' => 'in'],
-    ];
+        $studentsQuery = $studentsQuery->select(
+            'students.id',
+            'students.city_id',
+            'students.state_id',
+            'students.country_id',
+            'students.identity_card_id',
+            'students.date_of_birth',
+            'students.address',
+            'students.identity_card_no',
+            'students.first_name',
+            'students.last_name',
+            'students.email',
+            'students.phone_number',
+            'students.postal_code',
+            'students.profile_completion',
+            'documents.status as document_status',
+            'course_payments.id as payment_id',
+            'course_payments.admission_date',
+            'course_payments.payment_status',
+            'course_payments.course_schedule_id',
+            'course_payments.amount',
+            'course_payments.discount',
+            'course_payments.next_payment_date',
+            'course_payments.created_by',
+            'course_payments.student_track_id',
+            'course_payments.university_loginid',
+            'course_payments.university_loginpass',
+            'course_payments.branch_id'
+        )->distinct();
 
-    // Apply filters
-    foreach ($filters as $key => $filter) {
+        // Filters map
+        $filters = [
+            'first_name' => ['column' => 'students.first_name', 'operator' => 'like'],
+            'gender' => ['column' => 'students.gender', 'operator' => '='],
+            'phone_number' => ['column' => 'students.phone_number', 'operator' => 'like'],
+            'marital_status' => ['column' => 'students.marital_status', 'operator' => 'in'],
+            'email' => ['column' => 'students.email', 'operator' => 'like'],
+            'employment_status' => ['column' => 'students.employment_status', 'operator' => 'in'],
+            'pending_profile_completion' => ['column' => 'students.profile_completion', 'operator' => '='],
+            'pending_payments' => ['column' => 'course_payments.payment_status', 'operator' => '='],
+            'city' => ['column' => 'students.city_id', 'operator' => 'in'],
+            'state' => ['column' => 'students.state_id', 'operator' => '='],
+            'country' => ['column' => 'students.country_id', 'operator' => '='],
+            'course' => ['column' => 'course_payments.course_id', 'operator' => 'in'],
+        ];
+
+        // Apply filters
+        foreach ($filters as $key => $filter) {
             if ($request->has($key) && $request->input($key)) {
                 $value = $request->input($key);
 
@@ -427,14 +427,14 @@ class StudentController extends Controller
             }
         }
 
-            $search = $request->input('search');
-            if (!empty($search)) {
-                $studentsQuery->where(function ($query) use ($search) {
-                    $query->where('students.first_name', 'like', "%{$search}%")
-                        ->orWhere('students.phone_number', 'like', "%{$search}%")
-                        ->orWhere('students.email', 'like', "%{$search}%");
-                });
-            }
+        $search = $request->input('search');
+        if (!empty($search)) {
+            $studentsQuery->where(function ($query) use ($search) {
+                $query->where('students.first_name', 'like', "%{$search}%")
+                    ->orWhere('students.phone_number', 'like', "%{$search}%")
+                    ->orWhere('students.email', 'like', "%{$search}%");
+            });
+        }
         // if ($search = $request->input('search')) {
         //     if ($search == 'new') {
         //         $created_from_date = Carbon::now()->startOfMonth()->toDateString();
@@ -447,50 +447,33 @@ class StudentController extends Controller
 
 
 
-        $bindings = $studentsQuery->getBindings();
-        if ($data_posted == true && count($bindings) == 0) {
-            $students_data = [];
-        } else {
-            if ($request->input('excel') !== null && $request->input('excel') == "true") {
-                $fileName = 'students_' . Auth::id() . '.xlsx';
-
-                $filePath = 'public/exports/' . $fileName;
-                $directory = dirname($filePath);
-                if (!Storage::exists($directory)) {
-                    Storage::makeDirectory($directory);
-                }
-                Excel::store(new StudentsExport($studentsQuery->get()), $filePath);
-                $storage_path = Storage::url($filePath);
-                return response()->json(["status" => "success", 'filePath' => "public/" . $storage_path]);
-            } else {
-                $students_data = $studentsQuery->paginate(1000);
-            }
+        if ($request->input('excel') === 'true') {
+            $fileName = 'students_' . date('Ymd_His') . '.xlsx';
+            return Excel::download(new StudentsExport($studentsQuery->get()), $fileName);
         }
 
+        // Otherwise, paginate normally
+        $students_data = $studentsQuery->paginate(1000);
 
-      
+        return view('students.view_students', [
+            'students_data' => $students_data,
+            'dataAr' => $data
+        ]);
+        // Determine page number; reset to 1 if any filter/search applied
+        $page = $request->input('page', 1);
+        $hasFilter = $request->except(['page', '_token', 'excel']);
+        if (!empty(array_filter($hasFilter))) {
+            $page = 1;
+        }
 
-    // If Excel export requested
-    if ($request->input('excel') === 'true') {
-        $fileName = 'students_' . date('Ymd_His') . '.xlsx';
-        return Excel::download(new StudentsExport($studentsQuery->get()), $fileName);
+        // Paginate filtered results
+        $students_data = $studentsQuery->paginate(1000);
+
+        return view('students.view_students', [
+            'students_data' => $students_data,
+            'dataAr' => $data
+        ]);
     }
-
-    // Determine page number; reset to 1 if any filter/search applied
-    $page = $request->input('page', 1);
-    $hasFilter = $request->except(['page', '_token', 'excel']);
-    if (!empty(array_filter($hasFilter))) {
-        $page = 1;
-    }
-
-    // Paginate filtered results
-     $students_data = $studentsQuery->paginate(1000);
-
-    return view('students.view_students', [
-        'students_data' => $students_data,
-        'dataAr' => $data
-    ]);
-}
 
 
 
@@ -523,7 +506,7 @@ class StudentController extends Controller
     }
 
 
-     public function view_students2(Request $request, $search = null)
+    public function view_students2(Request $request, $search = null)
     {
 
         $query = Students::with('city:id,name', 'state:id,name', 'identity_card:id,name');
@@ -758,6 +741,10 @@ class StudentController extends Controller
 
     public function view_profile($step, $student_id)
     {
+
+       if ($step == 4) {
+        dd('Step 4 detected!', $step, $student_id);
+    }
         $studentData = Students::with(
             'city:id,name',
             'state:id,name',
@@ -785,7 +772,7 @@ class StudentController extends Controller
 
                 ->get();
 
-            
+
             $documentsData = Documents::with(
                 'doc_category:id,category_name',
             )

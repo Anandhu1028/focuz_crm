@@ -92,6 +92,14 @@ Route::middleware(['auth', 'verified', 'check_url_access'])->group(function () {
 
     // AJAX: get active universities for dashboard modal
     Route::get('/get-universities', [StudentController::class, 'getUniversities'])->name('get_universities');
+
+
+// Route to test the offer letter view
+Route::get('/offer-letters/test', function () {
+    return view('payments.pdfs.offer_letter');
+})->name('offer_letters.test');
+
+
 });
 
 Route::post('/load_cities', [LocationController::class, 'load_cities'])->name('load_cities');
