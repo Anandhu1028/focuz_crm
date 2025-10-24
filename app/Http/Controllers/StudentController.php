@@ -741,11 +741,8 @@ class StudentController extends Controller
 
     public function view_profile($step, $student_id)
     {
-
-       if ($step == 4) {
-        dd('Step 4 detected!', $step, $student_id);
-    }
-        $studentData = Students::with(
+        // Load student with relations
+        $studentData = Students::with([
             'city:id,name',
             'state:id,name',
             'country:id,name',
@@ -755,46 +752,41 @@ class StudentController extends Controller
             'employment_status:id,status_name',
             'marital_status:id,marital_status',
             'nationality:id,name'
-        )
-            ->where('id', $student_id)
-            ->first();
-        if (!$studentData) {
-            abort(404);
-        } else {
-            $educationData = EducationalQualifications::where('student_id', $student_id)
-                ->get();
+        ])->findOrFail($student_id);
 
-            $coursePaymentsAr = CoursePayments::with(
-                'courses:id,university_id',
-            )
-                ->where('student_id', $student_id)
-                ->where('status', 'active')
+        // Load educational qualifications
+        $educationData = EducationalQualifications::where('student_id', $student_id)->get();
 
-                ->get();
+        // Load course payments with CRE relations
+        $coursePaymentsAr = CoursePayments::with([
+            'courses:id,university_id',
+            'customer_relation_executive_user:id,name',        // If CRE is a user
+            'customer_relation_executive_employee:id,first_name,last_name' // If CRE is an employee
+        ])
+            ->where('student_id', $student_id)
+            ->where('status', 'active')
+            ->get();
 
+        // Load documents
+        $documentsData = Documents::with('doc_category:id,category_name')
+            ->where('student_id', $student_id)
+            ->get();
 
-            $documentsData = Documents::with(
-                'doc_category:id,category_name',
-            )
-                ->where('student_id', $student_id)
-                ->get();
-
-            return view(
-                'students.view_student_profile',
-                [
-                    'studentData' => $studentData,
-                    'educationDataAr' => $educationData,
-                    'coursePaymentsAr' => $coursePaymentsAr,
-                    'documentsDataAr' => $documentsData,
-                    'student_id' => $student_id,
-                    'step' => $step,
-                    'profile_completed' => $studentData->profile_completion,
-                    'max_profile_completion_steps' => $this->max_profile_completion_steps,
-                    'completed_levels' => $this->completed_levels
-                ]
-            );
-        }
+        // Return view with all data
+        return view('students.view_student_profile', [
+            'studentData' => $studentData,
+            'educationDataAr' => $educationData,
+            'coursePaymentsAr' => $coursePaymentsAr,
+            'documentsDataAr' => $documentsData,
+            'student_id' => $student_id,
+            'step' => $step,
+            'profile_completed' => $studentData->profile_completion,
+            'max_profile_completion_steps' => $this->max_profile_completion_steps,
+            'completed_levels' => $this->completed_levels
+        ]);
     }
+
+
 
     public function searchStudents(Request $request)
     {

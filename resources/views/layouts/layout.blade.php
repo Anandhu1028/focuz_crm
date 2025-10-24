@@ -55,21 +55,21 @@
 
         <div class="content-wrapper">
             @if ($layout_menu_exist !== null)
-                @php
-                    $padding_top = 'pt-5';
-                    $padding_top2 = 'pt-4';
-                @endphp
+            @php
+            $padding_top = 'pt-5';
+            $padding_top2 = 'pt-4';
+            @endphp
 
-                @if (view()->exists($layout_menu_exist))
-                    @include($layout_menu_exist)
-                @else
-                    {{-- <p>The requested view does not exist.</p> --}}
-                @endif
+            @if (view()->exists($layout_menu_exist))
+            @include($layout_menu_exist)
             @else
-                @php
-                    $padding_top = 'pt-3';
-                    $padding_top2 = 'pt-2';
-                @endphp
+            {{-- <p>The requested view does not exist.</p> --}}
+            @endif
+            @else
+            @php
+            $padding_top = 'pt-3';
+            $padding_top2 = 'pt-2';
+            @endphp
             @endif
 
             <section class="content-header  {{ $padding_top }}">
@@ -108,9 +108,9 @@
     <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ asset('js/bootstrap-select.min.js') }}"></script>
     <script src="{{ asset('js/adminlte.js?v=3.2.0') }}"></script>
-<script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
+    <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
 
-    
+
     <script>
         $(document).ready(function() {
             // const currentPath = "{{ $path }}";
@@ -137,10 +137,6 @@
             // });
         });
     </script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="{{ asset('/js/jquery.min.js') }}"></script>
-    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
-
     <script>
         // attach CSRF token to ALL jQuery AJAX requests
         $.ajaxSetup({
@@ -150,9 +146,7 @@
         });
     </script>
 
-    <script src="{{ asset('/js/ajax_loader.js') }}"></script>
 
-    
     @yield('script')
 
 

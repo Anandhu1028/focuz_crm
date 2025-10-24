@@ -9,7 +9,7 @@ use TCPDF;
 
 class InvoiceController extends Controller
 {
-    //
+    
 
 public function generateInvoice($pdfDirectory, $invoiceData, $name_append = '')
 {

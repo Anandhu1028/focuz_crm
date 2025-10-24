@@ -66,22 +66,22 @@
                         <span class="font-weight-bold text-info">
 
                             @if ($installment_amount != '')
-                                YES
+                            YES
                             @else
-                                NO
+                            NO
                             @endif
                         </span>
                         @if ($pending_amount_installment != 0)
 
-                            <span class="text-danger"> (
+                        <span class="text-danger"> (
 
-                                @if ($pending_amount_installment < 0)
-                                    Underpaid
-                                @elseif($pending_amount_installment > 0)
-                                    Overpaid
+                            @if ($pending_amount_installment < 0)
+                                Underpaid
+                                @elseif($pending_amount_installment> 0)
+                                Overpaid
                                 @endif
                                 in Settled Installments)
-                            </span>
+                        </span>
                         @endif
                     </div>
                 </div>
@@ -92,15 +92,15 @@
                         <select name="is_installment" id="is_installment" class="form-control form-control-sm">
                             <option value="">Select Option</option>
                             @php
-                                $selected_installment = '';
-                                $selected_normal = '';
-                                if ($payment_id_update != '') {
-                                    if ($installment_id_param != '') {
-                                        $selected_installment = 'selected';
-                                    } else {
-                                        $selected_normal = 'selected';
-                                    }
-                                }
+                            $selected_installment = '';
+                            $selected_normal = '';
+                            if ($payment_id_update != '') {
+                            if ($installment_id_param != '') {
+                            $selected_installment = 'selected';
+                            } else {
+                            $selected_normal = 'selected';
+                            }
+                            }
                             @endphp
                             <option value="installment" {{ $selected_installment }}>Installment</option>
                             <option value="normal" {{ $selected_normal }}>Normal Payment</option>
@@ -173,7 +173,7 @@
                 </div>
 
                 <div class="col-md-6">
-                    <div class="form-group">1959
+                    <div class="form-group">
                         <label for="card_type">Card Type</label>
                         <select name="card_type" id="card_type" data-size="5" url="load_card_types"
                             class="form-control form-control-sm selectpicker selectpicker_load" data-live-search>
@@ -233,7 +233,7 @@
                             data-live-search="true" required>
                             <option value="">Select branch</option>
                             @foreach ($branchesAr as $branch)
-                                <option value="{{ $branch->id }}__{{ $branch->code }}">{{ $branch->name }}</option>
+                            <option value="{{ $branch->id }}__{{ $branch->code }}">{{ $branch->name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -255,6 +255,17 @@
                         <input type="hidden" name="created_by" id="created_by">
                     </div>
                 </div>
+
+                <div class="col-md-6">
+                    <div class="form-group" id="cre_div">
+                        <label for="">Customer Relation Executive (CRE)</label><br />
+                        <input type="text" id="cre_select" class="form-control form-control-sm" placeholder="Enter CRE name">
+                        <input type="hidden" name="customer_relation_executive" id="customer_relation_executive">
+                    </div>
+                </div>
+
+
+
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="next_pay_date">Next Payment Date</label><br />
@@ -311,6 +322,15 @@
 
 <script>
     $(document).ready(function() {
+
+        // Ensure CRE is set to logged-in user if not selected
+        $('form').on('submit', function(e) {
+            var cre = $('#customer_relation_executive').val();
+            if (!cre) {
+                // Set to logged-in user ID (from backend)
+                $('#customer_relation_executive').val('{{ Auth::id() }}');
+            }
+        });
         const course_id_param = "{{ $course_id_param }}";
         if (course_id_param != "") {
             const student_id_post = $('.student_id').val();
@@ -341,6 +361,29 @@
                 $('#created_by').val(ui.item.value);
             }
         });
+
+        $("#cre_select").autocomplete({
+            source: function(request, response) {
+                $.ajax({
+                    type: 'post',
+                    url: "{{ route('username_autocomplete') }}", // Same route as BDE
+                    data: {
+                        term: request.term,
+                        '_token': "{{ csrf_token() }}"
+                    },
+                    success: function(data) {
+                        response(data);
+                    }
+                });
+            },
+            select: function(event, ui) {
+                event.preventDefault();
+                $('#cre_select').val(ui.item.label); // Show CRE name in input
+                $('#customer_relation_executive').val(ui.item.value); // Store CRE user_id in hidden field
+            }
+        });
+
+
 
         $('#course').on('show.bs.select', function(e) {
             e.preventDefault();
@@ -395,6 +438,8 @@
         $(document).on('click', '#register_new_payment', function(e) {
             e.preventDefault();
             $('#payment_id').val("");
+            $('#cre_select').val("");
+            $('#customer_relation_executive').val("");
         });
 
 
@@ -570,6 +615,13 @@
                     $('#univ_login_pass').val(response.univ_login_pass);
                     $('#created_by_select').val(response.emp_name);
                     $('#created_by').val(response.emp_id);
+                    // Populate CRE fields if available
+                    if (response.cre_name) {
+                        $('#cre_select').val(response.cre_name);
+                    }
+                    if (response.customer_relation_executive) {
+                        $('#customer_relation_executive').val(response.customer_relation_executive);
+                    }
                     $('#stud_status').val(response.stud_status);
                     $('#branch_code').selectpicker('refresh');
                     $('#payment_id').val(response.payment_id)
@@ -584,7 +636,8 @@
                         $('#amount').val(response.amount);
                         let load_data = {
                             '#payment_method': ['load_payment_method', response.payment_method,
-                                'trigger_change'],
+                                'trigger_change'
+                            ],
                             '#promo_code': ['load_promo_codes', response.promo_code],
                             '#bank': ['load_banks', response.bank],
                             '#card_type': ['load_card_types', response.card_type],
@@ -596,7 +649,7 @@
                             await loadOptions({}, loadFunction, updateOptions, selector, data, triggerChange);
                         }
 
-                    }else{
+                    } else {
                         $('#payment_id').val('');
                     }
 
@@ -620,6 +673,7 @@
                 console.log(response)
                 showAlert(response.message);
                 $('#payments_form .form-control').removeClass('error-outline');
+                $('#cre_select').removeClass('error-outline');
                 $(`#payments_form .bootstrap-select`).css('outline', 'none');
                 // $('#payment_id').val(response.payment_id)
                 $('#stud_track_id').html(response.student_track_id);
@@ -633,19 +687,16 @@
                     updateProgress(response.prolfile_completed[0], response.prolfile_completed[1],
                         'primary');
                 }
-                
-            
 
                 loadPayedAmount($('#course_period').val());
                 // $('#register_new_payment').removeClass('d-none');
                 // $('#reverse_transaction').val('false');
                 // $('#reverse_payment').removeClass('d-none');
-               
-               
-               setTimeout(function() {
-                // Use student_track_id in the query string
-                window.location.href = "{{ route('view_students') }}?student_id=" + response.student_track_id;
-            }, 1500);
+
+                setTimeout(function() {
+                    // Use student_track_id in the query string
+                    window.location.href = "{{ route('view_students') }}?student_id=" + response.student_track_id;
+                }, 1500);
 
 
 
@@ -687,6 +738,8 @@
                                         '1px solid red');
                                 } else if (key == 'created_by') {
                                     $('#created_by_select').addClass('error-outline');
+                                } else if (key == 'customer_relation_executive') {
+                                    $('#cre_select').addClass('error-outline');
                                 } else {
                                     $('#' + key).addClass('error-outline');
                                 }

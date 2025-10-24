@@ -101,4 +101,5 @@ class Students extends Model
     return $this->hasMany(\App\Models\Documents::class, 'student_id', 'id');
 }
 
+
 }

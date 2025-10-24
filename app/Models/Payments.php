@@ -8,14 +8,17 @@ use Illuminate\Database\Eloquent\Model;
 class Payments extends Model
 {
     use HasFactory;
-    
-    
-    
-    protected $fillable = [
-    'student_id', 'course_id', 'amount', 'discount_amount',
-    'payment_status', 'verified_by', 'offer_letter_path'
-];
 
+    protected $fillable = [
+        'student_id',
+        'course_id',
+        'amount',
+        'discount_amount',
+        'payment_status',
+        'verified_by',
+        'offer_letter_path',
+        
+    ];
 
     public function payment_methods()
     {
@@ -61,4 +64,10 @@ class Payments extends Model
     {
         return $this->hasMany(InstallmentHistory::class, 'payment_id');
     }
+
+    public function customer_relation_executive_user()
+{
+    return $this->belongsTo(User::class, 'customer_relation_executive');
+}
+
 }

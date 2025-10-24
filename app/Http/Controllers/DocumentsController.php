@@ -136,6 +136,8 @@ class DocumentsController extends Controller
                 'last_name' => $student->last_name ?? 'N/A',
                 'email' => $student->email ?? 'N/A',
                 'phone_number' => $student->phone_number ?? 'N/A',
+                'degree' =>$education->degree ?? 'N/A',
+                
                 'documents' => $student->documents->map(function ($doc) {
                     return [
                         'id' => $doc->id,

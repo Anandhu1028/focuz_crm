@@ -12,6 +12,8 @@
             <div class="card-header">
                 <h3 class="card-title">View Payments</h3>
             </div>
+
+
             <div class="card-body table-responsive">
                 <table id="view_students" style="font-size:10pt;" class="table table-bordered table-striped w-100">
                     <thead>
@@ -35,14 +37,20 @@
                     </thead>
                     <tbody>
                         @foreach ($coursePaymentsAr as $coursePayment)
-                        dd( $coursePayment);
                         @php
                         $course = $coursePayment->courses;
-                        $university = $course?->universities;
-                        $stream = $course?->stream;
+                        // Use the relationships defined on the Courses model
+                        $university = $course?->university; // method name is `university()`
+                        $stream = $course?->streams; // method name is `streams()` (returns the related Stream)
                         $schedule = $course?->course_schedules;
                         $course_name = trim(($stream->code ?? '') . ' ' . ($course->specialization ?? ''));
-                        $course_fee = $schedule->course_fee ?? 0;
+                        // course_schedules may be a collection; try to get first() if so
+                        if ($schedule instanceof Illuminate\Database\Eloquent\Collection) {
+                        $scheduleItem = $schedule->first();
+                        } else {
+                        $scheduleItem = $schedule;
+                        }
+                        $course_fee = $scheduleItem->course_fee ?? 0;
 
                         $paymentsDataAr = $coursePayment->payments ?? collect();
                         $total_paid_amount = $paymentsDataAr->where('status', 'active')->sum(fn($p) => ($p->amount ?? 0) + ($p->discount_amount ?? 0));
@@ -64,7 +72,7 @@
                         @endphp
 
                         <tr class="{{ $table_class }}">
-                            <td>{{ $university->university_code ?? '' }} {{ $course_name }}</td>
+                            <td>{{ $course_name }}</td>
                             <td>{{ $payment->payment_methods->method_name ?? '-' }}</td>
                             <td>{{ $payment->banks->bank_name ?? '-' }}</td>
                             <td>{{ $payment->card_types->type_name ?? '-' }}</td>
@@ -164,4 +172,4 @@
             window.location.href = "/offer_letter/download/" + paymentId;
         });
     });
-</script>   
+</script>

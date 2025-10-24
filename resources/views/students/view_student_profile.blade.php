@@ -6,25 +6,50 @@
         <div class="row">
             <div class="col">
                 <div class="progress mb-2">
-                    @if ($profile_completed == 0)
-                        @php
-                            $profile_completed_per = 15;
-                        @endphp
-                    @else
-                       @php
-                            $doc_status = $documentsDataAr->pluck('status');
+                 
+                    @php
+                    $profile_completed_per = 0;
 
-                            if ($doc_status->every(fn($status) => $status === 'approved')) {
-                                $profile_completed_per = 75;
-                            } elseif ($doc_status->contains(fn($status) => in_array($status, ['pending', 'rejected']))) {
-                                $profile_completed_per = 50;
-                            } else {
-                                $profile_completed_per = $profile_completed * 25;
-                            }
-                        @endphp
+                    // Step 1: Base on profile existence
+                    if ($profile_completed == 0) {
+                    $profile_completed_per = 15;
+                    } else {
+                    $doc_status = $documentsDataAr->pluck('status')->map(fn($s) => strtolower(trim($s)));
 
-                    @endif
-                    
+                    // Step 2: Document verification logic
+                    if ($doc_status->every(fn($s) => $s === 'approved')) {
+                    $profile_completed_per = 75;
+                    } elseif ($doc_status->contains(fn($s) => in_array($s, ['pending', 'rejected']))) {
+                    $profile_completed_per = 50;
+                    } else {
+                    $profile_completed_per = 15;
+                    }
+                    }
+
+                    // Step 3: Payment active overrides to 100%
+                    $paymentActive = false;
+
+                    if (isset($student->payment_status) && strtolower(trim($student->payment_status)) === 'active') {
+                    $paymentActive = true;
+                    } elseif (isset($coursePaymentsAr) && $coursePaymentsAr->pluck('status')->contains(fn($s) => strtolower(trim($s)) === 'active')) {
+                    $paymentActive = true;
+                    }
+
+                    if ($paymentActive) {
+                    $profile_completed_per = 100;
+                    }
+
+                    // Step 4: Progress bar color
+                    if ($profile_completed_per == 100) {
+                    $progress_class = 'bg-success';
+                    } elseif ($profile_completed_per >= 75) {
+                    $progress_class = 'bg-info';
+                    } elseif ($profile_completed_per >= 50) {
+                    $progress_class = 'bg-warning';
+                    } else {
+                    $progress_class = 'bg-danger';
+                    }
+                    @endphp
 
                     <div class="progress-bar bg-{{ $completed_levels[$profile_completed_per . '%'] ?? 'bg-primary' }}"
                         role="progressbar"
@@ -34,11 +59,6 @@
                         style="width: {{ $profile_completed_per }}%">
                         <span>{{ $profile_completed_per }}% Completed</span>
                     </div>
-
-
-
-
-
                 </div>
             </div>
         </div>

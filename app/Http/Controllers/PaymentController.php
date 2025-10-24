@@ -113,6 +113,8 @@ class PaymentController extends Controller
             'next_pay_date' => 'required|string|max:255',
             'admission_date' =>  'required|string|max:255',
             'created_by' =>  'required|string|max:255',
+            'customer_relation_executive' => 'nullable|string|max:255',
+
             'stud_status' =>  'required|string|max:255',
             'is_installment' =>  'required|string|in:installment,normal|max:255',
             'installment_id' =>  $installment_id_valid . '|string',
@@ -124,6 +126,8 @@ class PaymentController extends Controller
                 'branch_code' => 'required|string|max:255',
                 'admission_date' =>  'required|string|max:255',
                 'created_by' =>  'required|string|max:255',
+                'customer_relation_executive' => 'nullable|string|max:255',
+
                 'course' => 'required|string|max:255',
                 'course_period' => 'required|string|max:255',
                 'next_pay_date' => 'nullable|string|max:255',
@@ -209,6 +213,7 @@ class PaymentController extends Controller
                 ->increment('next_number');
             $student_track_id = "FCZ/$university_code/$branch_code/$last_id";
             $course_payment->created_by =  $request->input('created_by');
+            $course_payment->customer_relation_executive = $request->input('customer_relation_executive') ?? Auth::id();
             $course_payment->student_track_id = $student_track_id;
             $course_payment->branch_id  = $branch_id;
 
@@ -224,6 +229,12 @@ class PaymentController extends Controller
         } else {
             if (Auth::user()->role_id == 1) {
                 $course_payment->created_by =  $request->input('created_by');
+            }
+
+            // Update CRE if provided
+            if (!$request->input('update_common_details')) {
+                $cre = $request->input('customer_relation_executive');
+                $course_payment->customer_relation_executive = $cre ?: $course_payment->customer_relation_executive;
             }
 
             $course_payment->admission_date  =  $admission_date;
@@ -322,13 +333,13 @@ class PaymentController extends Controller
         } else {
             $query = CoursePayments::select(
                 'course_payments.*',
-                DB::raw('REGEXP_SUBSTR(student_track_id, "[0-9]+$") AS last_number')
+                DB::raw("SUBSTRING_INDEX(student_track_id, '/', -1) AS last_number")
             )
                 ->join('courses', 'courses.id', '=', 'course_payments.course_id')
                 ->where('courses.university_id', $universityCode)
                 ->where('course_payments.branch_id', $branch_id)
                 ->where('course_payments.student_track_id', 'like', 'FCZ%')
-                ->orderByRaw('CAST(REGEXP_SUBSTR(student_track_id, "[0-9]+$") AS UNSIGNED) DESC')
+                ->orderByRaw("CAST(SUBSTRING_INDEX(student_track_id, '/', -1) AS UNSIGNED) DESC")
                 ->limit(1);
             // return $query;
             if ($query === null) {
@@ -366,13 +377,13 @@ class PaymentController extends Controller
         // return Auth::user()->role_id;
         $query = CoursePayments::select(
             'course_payments.*',
-            DB::raw('REGEXP_SUBSTR(student_track_id, "[0-9]+$", 1, 1) AS last_number')
+            DB::raw("SUBSTRING_INDEX(student_track_id, '/', -1) AS last_number")
         )
             ->join('courses', 'courses.id', '=', 'course_payments.course_id')
             ->where('courses.university_id', 9233)
             ->where('course_payments.branch_id', 2)
             ->where('course_payments.student_track_id', 'like', 'FCZ%')
-            ->orderByRaw('CAST(REGEXP_SUBSTR(student_track_id, "[0-9]+$", 1, 1) AS UNSIGNED) DESC')
+            ->orderByRaw("CAST(SUBSTRING_INDEX(student_track_id, '/', -1) AS UNSIGNED) DESC")
             ->limit(1);
         $sql = $query->toSql();
         $bindings = $query->getBindings();
@@ -522,19 +533,19 @@ class PaymentController extends Controller
             'rows_remove_ids' => $approved_invoices
         ]);
     }
-    
-    
 
-       public function InvoicePrint(Request $request)
+
+
+    public function InvoicePrint(Request $request)
     {
         $checked_ids = $request->input('checkedIdsJson');
-    
+
         if (!is_array($checked_ids) || count($checked_ids) == 0) {
             return response()->json(['error' => 'No invoice selected'], 400);
         }
-    
+
         $pdf_path = $this->InvoiceGenerate($checked_ids[0], false, 'print');
-    
+
         if (file_exists($pdf_path)) {
             return response()->download($pdf_path, basename($pdf_path));
         } else {
