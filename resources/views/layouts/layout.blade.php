@@ -146,7 +146,11 @@
         });
     </script>
 
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> a9dfee9fdf96ad4273d03e61a87d3c141de2b0b3
     @yield('script')
 
 
